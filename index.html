@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/55/55283.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Виртуальный музей классических автомобилей</title>
+    <style>
+        /* Сброс стилей и базовые настройки */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Times New Roman', Georgia, serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            background-image: linear-gradient(to bottom, rgba(245, 245, 245, 0.9), rgba(245, 245, 245, 0.9)), 
+                              url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        body.dark-theme {
+            background-color: #121212;
+            color: #e0e0e0;
+            background-image: linear-gradient(to bottom, rgba(18, 18, 18, 0.9), rgba(18, 18, 18, 0.9)), 
+                              url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+        }
+
+        /* Типография */
+        h1, h2, h3, h4 {
+            font-weight: normal;
+            letter-spacing: 1px;
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #8B0000;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: #555;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        p {
+            margin-bottom: 1em;
+            font-size: 1.1rem;
+        }
+
+        .dark-theme h2 {
+            color: #aaa;
+            border-bottom: 1px solid #444;
+        }
+
+        .dark-theme h1,
+        .dark-theme h3 {
+            color: #d4af37;
+        }
+
+        .dark-theme p {
+            color: #e0e0e0;
+        }
+
+        /* Шапка */
+        header {
+            background: linear-gradient(to right, #1a1a1a, #3a3a3a);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1493238792000-8113da705763?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+        }
+
+        .tagline {
+            font-style: italic;
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        /* Навигация */
+        nav {
+            background: linear-gradient(to right, #8B0000, #A52A2A);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        /* Переключатель темы */
+        .theme-switcher {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .theme-switcher:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Основное содержимое */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dark-theme .container {
+            background-color: #1e1e1e;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .intro {
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dark-theme .intro {
+            border-bottom: 1px solid #444;
+        }
+
+        .intro p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+
+        /* Галерея автомобилей */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .dark-theme .car-card {
+            background: #2a2a2a;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-theme .car-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .car-image {
+            height: 250px;
+            background-color: #eee;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .dark-theme .car-image {
+            background-color: #333;
+        }
+
+        .car-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            padding: 1rem;
+        }
+
+        .car-info {
+            padding: 1.5rem;
+        }
+
+        .car-year {
+            font-style: italic;
+            color: #777;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark-theme .car-year {
+            color: #aaa;
+        }
+
+        .car-description {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .dark-theme .car-description {
+            color: #ccc;
+        }
+
+        .car-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .spec-item {
+            background-color: #f0f0f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .dark-theme .spec-item {
+            background-color: #333;
+            color: #ddd;
+        }
+
+        /* Раздел эпох */
+        .eras {
+            padding: 3rem 0;
+        }
+
+        .era-section {
+            margin-bottom: 3rem;
+        }
+
+        .era-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .era-title {
+            flex: 1;
+        }
+
+        .era-period {
+            font-style: italic;
+            color: #777;
+            font-size: 1.2rem;
+        }
+
+        .dark-theme .era-period {
+            color: #aaa;
+        }
+
+        .era-description {
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+            border-left: 3px solid #8B0000;
+        }
+
+        .dark-theme .era-description {
+            border-left: 3px solid #d4af37;
+        }
+
+        /* Подвал */
+        footer {
+            background: linear-gradient(to right, #1a1a1a, #3a3a3a);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #d4af37;
+        }
+
+        .copyright {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            max-width: 900px;
+            margin: 2rem auto;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.4s ease;
+        }
+
+        .dark-theme .modal-content {
+            background-color: #1e1e1e;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, #8B0000, #A52A2A);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 400px;
+            background-color: #eee;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .dark-theme .modal-image {
+            background-color: #333;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                padding: 0.5rem 1rem;
+                margin: 0.2rem;
+                font-size: 1rem;
+            }
+
+            .theme-switcher {
+                margin-left: 0;
+                margin-top: 0.5rem;
+                order: 1;
+                width: 100%;
+                justify-content: center;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Анимации и эффекты */
+        .fade-in {
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Дополнительные элементы */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 2rem 0;
+        }
+
+        .dark-theme .divider {
+            background: linear-gradient(to right, transparent, #444, transparent);
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.2rem;
+            color: #555;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+            border-left: 4px solid #8B0000;
+            margin: 2rem 0;
+        }
+
+        .dark-theme .quote {
+            color: #ddd;
+            background-color: #2a2a2a;
+            border-left: 4px solid #d4af37;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(to right, #8B0000, #A52A2A);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to right, #A52A2A, #8B0000);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme .btn:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Карусель */
+        .carousel {
+            position: relative;
+            margin: 2rem 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-theme .carousel {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-control:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .carousel-control.prev {
+            left: 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .carousel-control.next {
+            right: 0;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicator.active {
+            background-color: white;
+        }
+
+        /* Форма */
+        input, textarea {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .dark-theme input,
+        .dark-theme textarea {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="header-content">
+            <div class="logo">Автомобильная Эпоха</div>
+            <div class="tagline">Виртуальный музей классических автомобилей</div>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-container">
+            <a href="#home" class="nav-link active">Главная</a>
+            <a href="#gallery" class="nav-link">Коллекция</a>
+            <a href="#eras" class="nav-link">Эпохи</a>
+            <a href="#about" class="nav-link">О музее</a>
+            <a href="#contact" class="nav-link">Контакты</a>
+            
+            <div class="theme-switcher" id="themeSwitcher">
+                <span class="theme-icon">🌓</span>
+                <span id="themeText">Тёмная тема</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основное содержимое -->
+    <div class="container">
+        <!-- Введение -->
+        <section id="home" class="intro fade-in">
+            <h2>Добро пожаловать в виртуальный музей классических автомобилей</h2>
+            <p>Откройте для себя богатую историю автомобилестроения через наши уникальные экспонаты. Каждый автомобиль в нашей коллекции - это не просто машина, а произведение искусства, отражающее дух своего времени.</p>
+            <div class="divider"></div>
+            
+            <!-- Карусель с избранными автомобилями -->
+            <div class="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1494972308805-463bc619d34e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');"></div>
+                </div>
+                <button class="carousel-control prev">&lt;</button>
+                <button class="carousel-control next">&gt;</button>
+                <div class="carousel-indicators">
+                    <div class="carousel-indicator active"></div>
+                    <div class="carousel-indicator"></div>
+                    <div class="carousel-indicator"></div>
+                </div>
+            </div>
+            
+            <div class="quote">
+                "Автомобиль - это не просто средство передвижения, это отражение эпохи, культуры и технологического прогресса своего времени."
+            </div>
+        </section>
+
+        <!-- Галерея автомобилей -->
+        <section id="gallery" class="fade-in">
+            <h2>Наша коллекция</h2>
+            <p>Исследуйте самые знаковые автомобили в истории автомобилестроения.</p>
+            
+            <div class="gallery">
+                <!-- Ford Mustang 1965 -->
+                <div class="car-card" onclick="openModal('mustang')">
+                    <div class="car-image" style="background-image: url('https://driveshare.com/files/car_images/3800/1583274235_phpZWvP5n.jpg.full.jpg?t=1708387960');">
+                        <div class="car-overlay">
+                            <h3>Ford Mustang 1965</h>
+                            <p class="car-year">Год выпуска: 1965</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Первый Mustang создал новый класс "pony cars" и стал символом американской автомобильной культуры.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 271 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Разгон: 7.5 сек до 100</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+                
+                <!-- Volkswagen Beetle 1963 -->
+                <div class="car-card" onclick="openModal('beetle')">
+                    <div class="car-image" style="background-image: url('https://www.beverlyhillscarclub.com/galleria_images/17590/17590_p42_l.jpg');">
+                        <div class="car-overlay">
+                            <h3>Volkswagen Beetle 1963</h3>
+                            <p class="car-year">Год выпуска: 1963</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Легендарный "Жук" - один из самых массовых автомобилей в истории, символ послевоенного восстановления Германии.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 40 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Расход: 8 л/100км</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+                
+                <!-- Chevrolet Corvette Stingray 1969 -->
+                <div class="car-card" onclick="openModal('corvette')">
+                    <div class="car-image" style="background-image: url('https://s.auto.drom.ru/i24244/c/photos/fullsize/chevrolet/corvette/chevrolet_corvette_952629.jpg');">
+                        <div class="car-overlay">
+                            <h3>Chevrolet Corvette 1969</h3>
+                            <p class="car-year">Год выпуска: 1969</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Спортивный автомобиль с культовым дизайном и мощным двигателем V8, символ американского автопрома.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 390 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Скорость: 240 км/ч</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+                
+                <!-- Mercedes-Benz 300SL 1954 -->
+                <div class="car-card" onclick="openModal('mercedes')">
+                    <div class="car-image" style="background-image: url('https://morikoff.ru/wp-content/uploads/mercedes-benz-300-sl.jpg');">
+                        <div class="car-overlay">
+                            <h3>Mercedes-Benz 300SL 1954</h3>
+                            <p class="car-year">Год выпуска: 1954</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Легендарный "Крыло чайки" с дверями типа "крыло чайки" и инновационной для своего времени конструкцией.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 215 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Разгон: 8.8 сек до 100</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+                
+                <!-- Jaguar E-Type 1961 -->
+                <div class="car-card" onclick="openModal('jaguar')">
+                    <div class="car-image" style="background-image: url('https://ic.pics.livejournal.com/sklyushnichenko/74799376/240335/240335_1000.jpg');">
+                        <div class="car-overlay">
+                            <h3>Jaguar E-Type 1961</h3>
+                            <p class="car-year">Год выпуска: 1961</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Энцо Феррари назвал его "самым красивым автомобилем из когда-либо созданных". Икона британского автопрома.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 265 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Скорость: 240 км/ч</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+                
+                <!-- Porsche 911 1964 -->
+                <div class="car-card" onclick="openModal('porsche')">
+                    <div class="car-image" style="background-image: url('https://images.unsplash.com/photo-1588258219511-64eb629cb833?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
+                        <div class="car-overlay">
+                            <h3>Porsche 911 1964</h3>
+                            <p class="car-year">Год выпуска: 1964</p>
+                        </div>
+                    </div>
+                    <div class="car-info">
+                        <p class="car-description">Легендарный спортивный автомобиль с задним расположением двигателя, ставший символом марки Porsche.</p>
+                        <div class="car-specs">
+                            <span class="spec-item">Мощность: 130 л.с.</span>
+                            <span class="spec-item">Топливо: Бензин</span>
+                            <span class="spec-item">Разгон: 8.5 сек до 100</span>
+                        </div>
+                        <button class="btn">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
